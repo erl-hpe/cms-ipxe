@@ -1,0 +1,19 @@
+# Copyright 2019, Cray Inc. All Rights Reserved.
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Values.ipxe.name }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.ipxe.name }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - pods
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch

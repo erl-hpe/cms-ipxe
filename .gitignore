@@ -1,0 +1,5 @@
+/.project
+/.pydev
+/.pydevproject
+/.venv
+/testdeploy.retry

@@ -1,0 +1,10 @@
+# Copyright 2019, Cray Inc. All Rights Reserved.
+---
+- hosts: managers
+  any_errors_fatal: true
+  remote_user: root
+  gather_facts: true
+  roles:
+    # Deploy services
+    - networks
+    - cray_ipxe

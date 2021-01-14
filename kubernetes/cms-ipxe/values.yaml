@@ -1,0 +1,125 @@
+# Please refer to https://stash.us.cray.com/projects/CLOUD/repos/cray-charts/browse/stable/cray-service/values.yaml?at=refs%2Fheads%2Fmaster
+# for more info on values you can set/override
+# Note that cray-service.containers[*].image and cray-service.initContainers[*].image map values are one of the only structures that
+# differ from the standard kubernetes container spec:
+# image:
+#   repository: ""
+#   tag: "" (default = "latest")
+#   pullPolicy: "" (default = "IfNotPresent")
+
+cray-service:
+  type: Deployment
+  nameOverride: cray-ipxe
+  fullnameOverride: cray-ipxe
+  serviceAccountName: cray-ipxe
+  nodeSelector:
+    node-discovery.cray.com/networks.node_management: "true"
+  replicaCount: 1
+  # strategyType: Recreate ????????????????????
+  containers:
+    cray-ipxe:
+      name: cray-ipxe
+      image:
+        repository: cray/cray-bss-ipxe
+        pullPolicy: Always
+      volumeMounts:
+      - name: cray-tftp-data
+        mountPath: /shared_tftp
+        subPath: tftp
+      - name: client-auth
+        mountPath: /client_auth
+        readOnly: true
+      - name: ca-public-key
+        mountPath: /ca_public_key
+      env:
+      - name: LOG_LEVEL
+        value: INFO
+      - name: IPXE_BUILD_TIME_LIMIT
+        value: "40"
+      - name: DEBUG_IPXE_BUILD_TIME_LIMIT
+        value: "120"
+      livenessProbe:
+        exec:
+          command:
+          - python3
+          - "-m"
+          - crayipxe.liveness
+        initialDelaySeconds: 40
+        periodSeconds: 40
+  volumes:
+    cray-tftp-data:
+      name: cray-tftp-data
+      persistentVolumeClaim:
+        claimName: cray-tftp-shared-pvc
+    client-auth:
+      name: client-auth
+      secret:
+        secretName: system-pxe-client-auth
+    ca-public-key:
+      name: ca-public-key
+      configMap:
+        name: cray-configmap-ca-public-key
+  service:
+    enabled: false
+
+ipxe:
+  name: cray-ipxe
+  namespace: services
+  image_version: "latest"
+
+  # Override with networks['node_management'].api_gw_service_dnsname
+  api_gw: api-gw-service-nmn.local
+
+  # The following are options that pertain to the build environment; checking in
+  # values here change the resultant number of build environments that are created
+  # as a response to updates or changes in the environment.
+  build_bss: true
+  build_shell: true
+  chain_timeout: 10000
+
+  # The following are options that pertain to which architectures are built for
+  # the ipxe flavors that are listed above.
+  build_x86: true
+
+  # The following are options that pertain to how the ipxe binaries are built with
+  # relation to embedding public CA certificates into images.
+  build_with_cert: true
+
+  # The following are options that pertain to the resultant interfaces that are
+  # allowed as booting devices. By default, the resultant ipxe binary will instruct
+  # nodes to boot over interfaces 2, 0, and 1, in that order. iPXE discovers and
+  # labels interfaces based on how they're discovered based on their PCI id;
+  # as a result, effective networks are attempted one after the other, until a
+  # valid response from the boot script service (BSS) is successful. For systems
+  # with homongenous hardware, it may be possible to alter the order of, or remove
+  # networks which do not correspond to networks which expose boot services.
+  # Overall time incurred on network miss depends on dhcp configuration on the
+  # network attached to the NICs, but is about 10 seconds per failed network try.
+  nic_boot_order:
+  - net2
+  - net0
+  - net1
+  - net3
+  - net4
+  - net5
+
+  bss_max_attempts: 1024
+
+  # The longest period of time to wait between attempts for contacting BSS over NICs
+  # interated in cray_nic-boot_order. This number is effectively influenced by the
+  # number of nodes expected to be booted simultaneously, and the effective number
+  # of requests per second that BSS can serve out, assuming an average number of
+  # requests per second. The exact number of requests per second is probably not
+  # going to be uniform unless ramp rate limiting through capmc is used, or other
+  # rate limiting mechanism with warmboot.
+  #
+  # This default value here is assuming a 250,0000 compute node system and a
+  # throughput rate of BSS of about 4000 requests/second. This value is subject to
+  # the number of BSS instances that are scaled, as well as the underlying datastore
+  # of this service. These are read requests, so it is expected that scaling the number
+  # of etcd replicas will improve overall throughput of BSS. As such, this value
+  # is expected to change based on improvements to underlying microservices, and
+  # can also be tuned based on the actual system size. In either case, this number
+  # represents the pathological maximum to boot; in reality nothing should ever get
+  # this high.
+  bss_ceiling: 64

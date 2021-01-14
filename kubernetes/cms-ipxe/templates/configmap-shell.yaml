@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cray-ipxe-shell-ipxe
+  labels:
+    app.kubernetes.io/name: {{ .Values.ipxe.name }}
+data:
+  shell.ipxe: "#!ipxe
+
+shell"

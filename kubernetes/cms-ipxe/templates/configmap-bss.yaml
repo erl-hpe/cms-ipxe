@@ -1,0 +1,68 @@
+{{- $root := . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cray-ipxe-bss-ipxe
+  labels:
+    app.kubernetes.io/name: {{ .Values.ipxe.name }}
+data:
+  bss.ipxe: >
+    #!ipxe
+
+
+    echo Chaining to BSS; trying interfaces {{ .Values.ipxe.nic_boot_order | join ", " }}...
+
+
+    set attempt:int32 0
+
+    set maxattempts:int32 {{ .Values.ipxe.bss_max_attempts }}
+
+    set sleepytime:int32 0
+
+    set ceiling:int32 {{ .Values.ipxe.bss_ceiling }}
+
+
+    :start
+
+    inc attempt
+
+    inc sleepytime
+
+    iseq ${sleepytime} ${ceiling} && set sleepytime:int32 {{ 1 | sub .Values.ipxe.bss_ceiling }} ||
+
+    iseq ${attempt} ${maxattempts} && goto debug_retry ||
+
+
+    echo Chain attempt ${attempt} of ${maxattempts}
+
+    {{- range $netname := .Values.ipxe.nic_boot_order }}
+
+    :{{ $netname }}
+
+    dhcp {{ $netname }} || goto {{ $netname }}_stop
+
+    echo {{ $netname }} IPv4 lease: ${ip} mac: ${ {{- $netname }}/mac}
+
+
+    chain --timeout {{ $root.Values.ipxe.chain_timeout }} http{{ if $root.Values.ipxe.build_with_cert }}s{{ end }}://{{ $root.Values.ipxe.api_gw }}/apis/bss/boot/v1/bootscript?mac=${ {{- $netname }}/mac} || echo Failed to retrieve next chain from Boot Script Service over {{ $netname }} (http{{ if $root.Values.ipxe.build_with_cert }}s{{ end }}://{{ $root.Values.ipxe.api_gw }}/apis/bss/boot/v1/bootscript?mac=${ {{- $netname }}/mac} && goto {{ $netname }}_stop
+
+    :{{ $netname }}_stop
+
+    ifclose {{ $netname }} || echo No routes to drop.
+
+
+    {{- end }}
+
+
+    echo Failure to chain to BSS over networks associated with NICS: {{ .Values.ipxe.nic_boot_order | join ", " }}; retrying in ${sleepytime} seconds...
+
+    sleep ${sleepytime}
+
+    goto start
+
+
+    :debug_retry
+
+    echo IPXE failed to retrieve next chain over configured nic networks to a BSS instance after ${maxattempts}.
+
+    shell

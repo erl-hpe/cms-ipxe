@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cray-ipxe-settings
+  labels:
+    app.kubernetes.io/name: {{ .Values.ipxe.name }}
+data:
+  settings.yaml: |
+    cray_ipxe_build_x86: {{ .Values.ipxe.build_x86 }}
+    cray_ipxe_build_bss: {{ .Values.ipxe.build_bss }}
+    cray_ipxe_build_shell: {{ .Values.ipxe.build_shell }}
+    cray_ipxe_build_with_cert: {{ .Values.ipxe.build_with_cert }}
