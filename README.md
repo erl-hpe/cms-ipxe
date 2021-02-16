@@ -56,16 +56,4 @@ above.
 
 ## Testing
 
-### CT Tests 
-CT tests can be found in /ct-tests
-
-On a physical system, CMS tests can be found in /opt/cray/tests/crayctl-stage{NUMBER}/cms
-Please see https://connect.us.cray.com/confluence/display/DST/Stage+Tests+Guidelines for more details.
-
-example: run CT test for IPXE at crayctl stage 4
-```
-# /opt/cray/tests/crayctl-stage4/cms/ipxe_stage4_ct_tests.sh or
-# cmsdev test ipxe --ct
-```
-
-Tests return 0 for success, 1 otherwise
+See cms-tools repo for details on running CT tests for this service.
