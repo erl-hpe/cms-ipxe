@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2019-2020 Hewlett Packard Enterprise Development LP
+# Copyright 2019-2021 Hewlett Packard Enterprise Development LP
 """
 This is the main entry point for Cray ipxe. The Cray iPXE service is a state
 engine used to create and deploy ipxe binaries within the management plane.
@@ -36,6 +36,14 @@ TFTP_MOUNT_DIR = '/shared_tftp'
 TOKEN_URL = "https://api-gw-service-nmn.local/keycloak/realms/shasta/protocol/openid-connect/token"
 LOGGER = logging.getLogger(__name__)
 
+# These iPxe debug settings are enabled in normal builds because they provide
+# useful info (i.e: BIOS timme and basic http info).
+cray_ipxe_standard_opts = "httpcore,x509,efi_time"
+
+# These settings are enabled by default when a debug build is requested
+# ('cray_ipxe_build_debug=true') unless they are overridden in the settings
+# (via 'cray_ipxe_build_debug_level').
+cray_ipxe_debug_level_default = "httpcore:2,x509:2,efi_time"
 
 class GracefulExit(object):
     """
@@ -64,7 +72,8 @@ def cleanup(*args, **kwargs):
     pass
 
 
-def create_binaries(api_instance, fname, script, cert=None, arch='x86_64', kind='efi', bearer_token=None, ipxe_build_debug=False):
+def create_binaries(api_instance, fname, script, cert=None, arch='x86_64', kind='efi',
+    bearer_token=None, ipxe_build_debug=False, ipxe_build_debug_level=None):
     """
     Creates a new ipxe binary and registers it to the TFTP service for
     consumption.
@@ -85,13 +94,13 @@ def create_binaries(api_instance, fname, script, cert=None, arch='x86_64', kind=
         product_dest = os.path.join(TFTP_MOUNT_DIR, fname)
         build_command.append(build_cmd)
         if ipxe_build_debug:
-            # Enabling the debug build will print out the current system EFI time
-            # and verbose detail about the certificate.
-            build_command.append('DEBUG=httpcore:2,x509:2,efi_time')
+            # Enabling the debug build will include options defined in
+            # ipxe_build_debug_level which can be a default set of options
+            # or can be customized by settings.
+            build_command.append('DEBUG=%s' % ipxe_build_debug_level)
         else:
-            # By default we will print out the current system EFI time
-            # and some information about the certificate and the response code.
-            build_command.append('DEBUG=httpcore,x509,efi_time')
+            # By default a build will include some minimal debug options.
+            build_command.append('DEBUG=%s' % cray_ipxe_standard_opts)
     except KeyError:
         raise Exception("Unsupported build type: arch '%s' of kind '%s'." % (arch, kind))
 
@@ -284,11 +293,17 @@ def main():
         # requested in the configmap.  This is very useful for seeing the
         # request and response details.
         ipxe_build_debug = False
+        cray_ipxe_debug_level = ""
         cray_ipxe_build_debug = settings.get('cray_ipxe_build_debug')
         if cray_ipxe_build_debug is not None:
             if str(settings.get('cray_ipxe_build_debug')).upper() == "TRUE":
                 LOGGER.debug('cray_ipxe_build_debug=TRUE')
                 ipxe_build_debug = True
+
+                cray_ipxe_debug_level = settings.get('cray_ipxe_build_debug_level')
+                if cray_ipxe_debug_level is None:
+                    cray_ipxe_debug_level = cray_ipxe_debug_level_default
+                LOGGER.debug('cray_ipxe_build_debug_level=%s' % cray_ipxe_debug_level)
 
         # Obtain CA public key
         ca_public_key_raw = api_instance.read_namespaced_config_map(
@@ -333,7 +348,8 @@ def main():
 
             create_binaries(api_instance, 'ipxe.efi', bss_script, cert=public_cert,
                             bearer_token=bearer_token,
-                            ipxe_build_debug=ipxe_build_debug)
+                            ipxe_build_debug=ipxe_build_debug,
+                            ipxe_build_debug_level=cray_ipxe_debug_level)
 
             ipxe_timestamp.delete()
 
@@ -355,7 +371,8 @@ def main():
 
             create_binaries(api_instance, 'debug.efi', shell_script, cert=public_cert,
                             bearer_token=bearer_token,
-                            ipxe_build_debug=ipxe_build_debug)
+                            ipxe_build_debug=ipxe_build_debug,
+                            ipxe_build_debug_level=cray_ipxe_debug_level)
 
             debug_ipxe_timestamp.delete()
 
