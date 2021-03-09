@@ -6,7 +6,7 @@
 # for downloading ipxe binaries from a secure location. The ipxe binaries
 # themselves need to be dynamically recreated whenever the public CA cert
 # changes.
-FROM dtr.dev.cray.com/cray/cray-tpsw-ipxe:2.1.1-20210114203639_240e7967
+FROM dtr.dev.cray.com/cray/cray-tpsw-ipxe:2.2.0-20210309205020_0b7ba7b
 RUN mkdir /app
 WORKDIR /app
 COPY requirements.txt requirements_test.txt constraints.txt /app/
