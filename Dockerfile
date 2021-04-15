@@ -6,12 +6,16 @@
 # for downloading ipxe binaries from a secure location. The ipxe binaries
 # themselves need to be dynamically recreated whenever the public CA cert
 # changes.
-FROM dtr.dev.cray.com/cray/cray-tpsw-ipxe:2.2.0-20210309205020_0b7ba7b
+FROM arti.dev.cray.com/internal-docker-stable-local/cray-tpsw-ipxe:2.2.2
 RUN mkdir /app
 WORKDIR /app
 COPY requirements.txt requirements_test.txt constraints.txt /app/
 
-RUN apk add py3-pip openssl coreutils && \
+RUN apk add \
+      gcc \
+      python3-dev \
+      libc-dev \
+      py3-pip openssl coreutils && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install --no-cache-dir -r /app/requirements.txt
 
