@@ -33,7 +33,7 @@ from crayipxe.liveness.ipxe_timestamp import ipxeTimestamp, IPXE_PATH, DEBUG_IPX
 
 IPXE_BUILD_DIR = '/ipxe'
 TFTP_MOUNT_DIR = '/shared_tftp'
-TOKEN_URL = "https://api-gw-service-nmn.local/keycloak/realms/shasta/protocol/openid-connect/token"
+TOKEN_HOST="api-gw-service-nmn.local"  # default in case it is not in the settings configmap
 LOGGER = logging.getLogger(__name__)
 
 # These iPxe debug settings are enabled in normal builds because they provide
@@ -174,9 +174,10 @@ def create_binaries(api_instance, fname, script, cert=None, arch='x86_64', kind=
     LOGGER.info("Newly created ipxe binary created: '%s'" % (os.path.join(TFTP_MOUNT_DIR, fname)))
 
 
-def fetch_token():
+def fetch_token(token_host):
     # The token will be fetched from Keycloak using the client id and secret
     # from the mounted Kubernetes secret.
+    token_url = "https://%s/keycloak/realms/shasta/protocol/openid-connect/token" % token_host
     auth_user_file = "/client_auth/client-id"
     auth_secret_file = "/client_auth/client-secret"
     oauth_client_id = ""
@@ -207,7 +208,7 @@ def fetch_token():
         client_id=oauth_client_id)
 
     session = requests_oauthlib.OAuth2Session(
-        client=oauth_client, auto_refresh_url=TOKEN_URL,
+        client=oauth_client, auto_refresh_url=token_url,
         auto_refresh_kwargs={
             'client_id': oauth_client_id,
             'client_secret': oauth_client_secret,
@@ -218,7 +219,7 @@ def fetch_token():
     # This certificate is mounted from an existing configmap.
     session.verify = "/ca_public_key/certificate_authority.crt"
 
-    token = session.fetch_token(token_url=TOKEN_URL, client_id=oauth_client_id,
+    token = session.fetch_token(token_url=token_url, client_id=oauth_client_id,
                                 client_secret=oauth_client_secret, timeout=500)
 
     access_token = None
@@ -320,8 +321,9 @@ def main():
             public_cert = None
 
         # Obtain the bearer token if one is provided in the configmap
+        token_host = settings.get('cray_ipxe_token_host', TOKEN_HOST)
         bearer_token_changed = False
-        bearer_token_new = fetch_token()
+        bearer_token_new = fetch_token(token_host)
         if bearer_token_new != bearer_token:
             bearer_token_changed = True
             bearer_token = bearer_token_new
