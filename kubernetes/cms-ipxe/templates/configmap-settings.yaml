@@ -10,3 +10,4 @@ data:
     cray_ipxe_build_bss: {{ .Values.ipxe.build_bss }}
     cray_ipxe_build_shell: {{ .Values.ipxe.build_shell }}
     cray_ipxe_build_with_cert: {{ .Values.ipxe.build_with_cert }}
+    cray_ipxe_token_host: {{ .Values.ipxe.api_gw }}
