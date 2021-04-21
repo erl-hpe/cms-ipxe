@@ -15,6 +15,7 @@ share location.
 
 import fileinput
 import logging
+import jwt
 import os
 import re
 import shutil
@@ -44,6 +45,11 @@ cray_ipxe_standard_opts = "httpcore,x509,efi_time"
 # ('cray_ipxe_build_debug=true') unless they are overridden in the settings
 # (via 'cray_ipxe_build_debug_level').
 cray_ipxe_debug_level_default = "httpcore:2,x509:2,efi_time"
+
+# The minimum amount of time in seconds prior to the expiration time for which
+# a JWT token is still considered valid for use by this service.
+token_min_remaining_valid_time_default = 30*60
+cray_ipxe_token_min_remaining_valid_time = token_min_remaining_valid_time_default
 
 class GracefulExit(object):
     """
@@ -238,6 +244,46 @@ def fetch_token(token_host):
         return None
 
 
+def token_expiring_soon(bearer_token, min_remaining_valid_time):
+    if bearer_token is None:
+        return True
+
+    # Just decode the token to extract the value.  THe token has already been
+    # obtianed from Keycloak here and verification gets handled
+    # by the API GW when the token is checked.
+    tokenMap = None
+    try:
+        tokenMap = jwt.decode(bearer_token,
+                              options={"verify_signature": False})
+    except Exception as ex:
+        LOGGER.error("Unable to decode JWT.  Error was %s", ex)
+        return True
+
+    # Grab the expiration time
+    tokenExp = tokenMap.get('exp')
+    LOGGER.debug("JWT expiration time=%s" % tokenExp)
+
+    if tokenExp is None:
+        LOGGER.error("Unable to extract the expiration 'exp' from the JWT.")
+        return True
+
+    # If the current time is at or beyond the token expiration minus an
+    # additional buffer time (to allow for a successful boot if used now)
+    # then consider this token expiration time too close to expiration
+    # and signal that we should request a new token.  The buffer time is
+    # configurable but a default is provided if needed.
+    tnow = int(time.time())
+    tmax = tokenExp - min_remaining_valid_time
+    LOGGER.debug("tnow=%s tmax=%s" % (tnow, tmax))
+    if tnow >= tmax:
+        LOGGER.debug("Detected that JWT will expire soon and needs updating.")
+        return True
+    else:
+        LOGGER.debug("""The current JWT expiration time is acceptable. \
+A new JWT will not be requested.""")
+        return False
+
+
 def main():
     # Load Configuration and indicate initial health
     try:
@@ -306,6 +352,15 @@ def main():
                     cray_ipxe_debug_level = cray_ipxe_debug_level_default
                 LOGGER.debug('cray_ipxe_build_debug_level=%s' % cray_ipxe_debug_level)
 
+        # Setup token minimum remaining valid time.
+        min_val_time = settings.get('cray_ipxe_token_min_remaining_valid_time')
+        if min_val_time is not None:
+            cray_ipxe_token_min_remaining_valid_time = min_val_time
+        else:
+            cray_ipxe_token_min_remaining_valid_time = token_min_remaining_valid_time_default
+        LOGGER.debug('cray_ipxe_token_min_remaining_valid_time=%s'
+                     % cray_ipxe_token_min_remaining_valid_time)
+
         # Obtain CA public key
         ca_public_key_raw = api_instance.read_namespaced_config_map(
             'cray-configmap-ca-public-key', 'services')
@@ -323,7 +378,12 @@ def main():
         # Obtain the bearer token if one is provided in the configmap
         token_host = settings.get('cray_ipxe_token_host', TOKEN_HOST)
         bearer_token_changed = False
-        bearer_token_new = fetch_token(token_host)
+
+        if bearer_token is None:
+            bearer_token_new = fetch_token(token_host)
+        elif token_expiring_soon(bearer_token, cray_ipxe_token_min_remaining_valid_time):
+            bearer_token_new = fetch_token(token_host)
+
         if bearer_token_new != bearer_token:
             bearer_token_changed = True
             bearer_token = bearer_token_new
