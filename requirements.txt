@@ -3,5 +3,6 @@
 -c constraints.txt
 
 kubernetes
+PyJWT
 PyYAML
 urllib3>=1.21.1
