@@ -29,7 +29,7 @@
 # themselves need to be dynamically recreated whenever the public CA cert
 # changes.
 
-FROM artifactory.algol60.net/csm-docker/stable/cray-tpsw-ipxe:2.2
+FROM artifactory.algol60.net/csm-docker/stable/cray-tpsw-ipxe:2.2.7
 RUN mkdir /app
 WORKDIR /app
 COPY requirements.txt requirements_test.txt constraints.txt /app/
