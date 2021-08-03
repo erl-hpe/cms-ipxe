@@ -21,6 +21,13 @@ pipeline {
     }
 
     stages {
+        stage("Clone cms_meta_tools repo") {
+            steps {
+                withCredentials([gitUsernamePassword(credentialsId: 'jenkins-algol60-cray-hpe-github-integration')]) {
+                    sh "make clone_cms_meta_tools"
+                }
+            }
+        }
         stage("Build Prep") {
             steps {
                 sh "make build_prep"
