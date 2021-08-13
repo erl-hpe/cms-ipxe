@@ -28,8 +28,7 @@
 # for downloading ipxe binaries from a secure location. The ipxe binaries
 # themselves need to be dynamically recreated whenever the public CA cert
 # changes.
-
-FROM artifactory.algol60.net/csm-docker/stable/cray-tpsw-ipxe:2.3.4
+FROM artifactory.algol60.net/csm-docker/stable/cray-tpsw-ipxe:@CRAY-TPSW-IPXE-VERSION@
 RUN mkdir /app
 WORKDIR /app
 COPY requirements.txt requirements_test.txt constraints.txt /app/
