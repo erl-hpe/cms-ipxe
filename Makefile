@@ -20,38 +20,37 @@
 #
 # (MIT License)
 
+# If you wish to perform a local build, you will need to clone or copy the contents of the
+# cms-meta-tools repo to ./cms_meta_tools
+
 DOCKER_NAME ?= cray-bss-ipxe
+DOCKER_VERSION ?= $(shell head -1 .docker_version)
+
 CHART_NAME ?= cms-ipxe
+CHART_VERSION ?= $(shell head -1 .chart_version)
 CHART_PATH ?= kubernetes
-VERSION ?= $(shell cat .version)-local
-CHART_VERSION ?= $(VERSION)
 
 HELM_UNITTEST_IMAGE ?= quintush/helm-unittest:3.3.0-0.2.5
 
-all : clone_cms_meta_tools build_prep lint image chart 
+all : runbuildprep lint image chart 
 chart: chart_setup chart_package chart_test
 
-# If you wish to perform a local build, you will need to clone or copy the contents of the
-# cms_meta_tools repo to ./cms_meta_tools
-clone_cms_meta_tools:
-		git clone --depth 1 --no-single-branch https://github.com/Cray-HPE/cms-meta-tools.git ./cms_meta_tools
-
-build_prep:
+runbuildprep:
 		./cms_meta_tools/scripts/runBuildPrep.sh
 
 lint:
 		./cms_meta_tools/scripts/runLint.sh
 
 image:
-		docker build --pull ${DOCKER_ARGS} --tag '${DOCKER_NAME}:${VERSION}' .
+		docker build --pull ${DOCKER_ARGS} --tag '${DOCKER_NAME}:${DOCKER_VERSION}' .
 
 chart_setup:
 		mkdir -p ${CHART_PATH}/.packaged
-		printf "\nglobal:\n  appVersion: ${VERSION}" >> ${CHART_PATH}/${CHART_NAME}/values.yaml
+		printf "\nglobal:\n  appVersion: ${DOCKER_VERSION}" >> ${CHART_PATH}/${CHART_NAME}/values.yaml
 
 chart_package:
 		helm dep up ${CHART_PATH}/${CHART_NAME}
-		helm package ${CHART_PATH}/${CHART_NAME} -d ${CHART_PATH}/.packaged --app-version ${VERSION} --version ${CHART_VERSION}
+		helm package ${CHART_PATH}/${CHART_NAME} -d ${CHART_PATH}/.packaged --app-version ${DOCKER_VERSION} --version ${CHART_VERSION}
 
 chart_test:
 		helm lint "${CHART_PATH}/${CHART_NAME}"
