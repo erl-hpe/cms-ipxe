@@ -15,23 +15,6 @@ cray-service:
   nodeSelector:
     node-discovery.cray.com/networks.node_management: "true"
   replicaCount: 1
-  initContainers:
-    - name: upgrade-volume
-      image: 
-        repository: docker.io/alpine
-        tag: 3.13 
-      volumeMounts:
-      - mountPath: /shared_tftp
-        name: cray-tftp-data
-        subPath: tftp
-      command:
-      - '/bin/sh'
-      - '-c'
-      - 'touch /shared_tftp/this && touch /tmp/this && chown 65534:65534 /shared_tftp/* /tmp/*'
-      securityContext:
-        runAsGroup: 1
-        runAsNonRoot: false
-        runAsUser: 1
   containers:
     cray-ipxe:
       name: cray-ipxe
