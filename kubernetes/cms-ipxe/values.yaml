@@ -25,7 +25,9 @@ cray-service:
         name: cray-tftp-data
         subPath: tftp
       command:
-      - "/bin/sh -c 'touch /shared_tftp/this && touch /tmp/this && chown 65534:65534 /shared_tftp/* /tmp/*'"
+      - '/bin/sh'
+      - '-c'
+      - 'touch /shared_tftp/this && touch /tmp/this && chown 65534:65534 /shared_tftp/* /tmp/*'
       securityContext:
         runAsGroup: 1
         runAsNonRoot: false
