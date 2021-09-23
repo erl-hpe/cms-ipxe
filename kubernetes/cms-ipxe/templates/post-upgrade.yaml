@@ -34,8 +34,8 @@ spec:
       - mountPath: /shared_tftp
         name: cray-tftp-data
         subPath: tftp
-    volumes:
-      cray-tftp-data:
-        name: cray-tftp-data
-        persistentVolumeClaim:
-          claimName: cray-tftp-shared-pvc
+      volumes:
+        cray-tftp-data:
+          name: cray-tftp-data
+          persistentVolumeClaim:
+            claimName: cray-tftp-shared-pvc
