@@ -31,9 +31,9 @@ spec:
         - '-c'
         - 'touch /shared_tftp/this && chown 65534:65534 /shared_tftp/*'
         volumeMounts:
-        - mountPath: /shared_tftp
-          name: cray-tftp-data
-          subPath: tftp
+          - mountPath: /shared_tftp
+            name: cray-tftp-data
+            subPath: tftp
       volumes:
         cray-tftp-data:
           name: cray-tftp-data
