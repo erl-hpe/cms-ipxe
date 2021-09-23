@@ -19,7 +19,7 @@ cray-service:
     - name: upgrade-volume
       image: 
         repository: docker.io/alpine
-        tag: latest
+        tag: 3.13 
       volumeMounts:
       - mountPath: /shared_tftp
         name: cray-tftp-data
