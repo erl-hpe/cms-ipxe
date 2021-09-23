@@ -17,9 +17,7 @@ cray-service:
   replicaCount: 1
   initContainers:
     - name: upgrade-volume
-      image: 
-        repository: docker.io/alpine:latest
-        pullPolicy: Always
+      Image: dtr.dev.cray.com/docker.io/alpine:latest
       volumeMounts:
       - mountPath: /shared_tftp
         name: cray-tftp-data
