@@ -25,6 +25,7 @@ cray-service:
         name: cray-tftp-data
         subPath: tftp
       command:
+      - "/bin/sh -c 'chown 65534:65534 /shared_tftp/* /tmp/*'
       - chmod
       - 65534:65534
       - "/shared_tftp/*"
