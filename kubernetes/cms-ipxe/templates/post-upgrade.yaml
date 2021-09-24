@@ -29,7 +29,7 @@ spec:
         command:
         - '/bin/sh'
         - '-c'
-        - 'touch /shared_tftp/this && chown 65534:65534 /shared_tftp/*'
+        - 'touch /shared_tftp/this && chown 65534:65534 /shared_tftp/* && chown 65534:65534 -R /ipxe/*'
         volumeMounts:
           - mountPath: /shared_tftp
             name: cray-tftp-data
