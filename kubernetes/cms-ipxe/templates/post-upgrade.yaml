@@ -25,7 +25,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: cms-ipxe-migration
-        image: "dtr.dev.cray.com/docker.io/alpine:3.13"
+        image: "{{ include "cray-service.image-prefix" .Root.Values }}{{ .Container.image.repository }}:{{ .Container.image.tag | default (include "cray-service.app-version" .Root ) }}" 
         command:
         - '/bin/sh'
         - '-c'
