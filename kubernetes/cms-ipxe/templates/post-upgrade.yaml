@@ -25,7 +25,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: cms-ipxe-migration
-        image: "docker.io/alpine:3.13"
+        image: "dtr.dev.cray.com/docker.io/alpine:3.13"
         command:
         - '/bin/sh'
         - '-c'
