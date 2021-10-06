@@ -25,11 +25,11 @@ spec:
       restartPolicy: Never
       containers:
       - name: cms-ipxe-migration
-        image: '{{ include "cray-service.image-prefix" .Root.Values }}{{ .Container.image.repository }}:{{ .Container.image.tag | default (include "cray-service.app-version" .Root ) }}' 
+        image: 'dtr.dev.cray.com/cray/cray-bss-ipxe:{{ .Container.image.tag | default (include "cray-service.app-version" .Root ) }}' 
         command:
         - '/bin/sh'
         - '-c'
-        - 'touch /shared_tftp/this && chown 65534:65534 /shared_tftp/* && chown 65534:65534 -R /ipxe/*'
+        - 'touch /shared_tftp/this && chown 65534:65534 /shared_tftp/*'
         volumeMounts:
           - mountPath: /shared_tftp
             name: cray-tftp-data
