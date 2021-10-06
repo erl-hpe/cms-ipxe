@@ -42,7 +42,7 @@ RUN apk --update upgrade --no-cache && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install --no-cache-dir -r /app/requirements.txt
 RUN echo 'alias ll="ls -l"' > ~/.bashrc
-RUN 'chown 65534:65534 -R /ipxe'
+RUN chown 65534:65534 -R /ipxe
 COPY /src/crayipxe /app/crayipxe
 USER nobody:nobody
 CMD ["/usr/bin/python3", "-m", "crayipxe.service"]
