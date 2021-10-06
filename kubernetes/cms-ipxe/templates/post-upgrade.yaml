@@ -39,3 +39,8 @@ spec:
           name: cray-tftp-data
           persistentVolumeClaim:
             claimName: cray-tftp-shared-pvc
+      securityContext:
+        runAsUser: 1
+        runAsGroup: 1
+        runAsNonRoot: false
+
