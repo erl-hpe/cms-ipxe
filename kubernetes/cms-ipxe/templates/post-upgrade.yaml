@@ -25,7 +25,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: cms-ipxe-migration
-        image: {{ .Values.cray-service.containers.cray-ipxe.image }}
+        image: "dtr.dev.cray.com/cray/cray-bss-ipxe:{{ .Chart.AppVersion }}"
         command:
         - '/bin/sh'
         - '-c'
