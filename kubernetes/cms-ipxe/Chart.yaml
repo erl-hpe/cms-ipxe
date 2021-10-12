@@ -2,4 +2,4 @@ apiVersion: v1
 description: "Kubernetes resources for cms-ipxe"
 name: "cms-ipxe"
 home: "scms/cms-ipxe"
-version: @VERSION@
+version: 1.2.3 
