@@ -12,6 +12,7 @@ cray-service:
   nameOverride: cray-ipxe
   fullnameOverride: cray-ipxe
   serviceAccountName: cray-ipxe
+  priorityClassName: csm-high-priority-service
   nodeSelector:
     node-discovery.cray.com/networks.node_management: "true"
   replicaCount: 1
