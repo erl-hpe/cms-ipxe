@@ -1,5 +1,16 @@
-apiVersion: v1
-description: "Kubernetes resources for cms-ipxe"
-name: "cms-ipxe"
-home: "scms/cms-ipxe"
-version: @VERSION@ 
+apiVersion: v2
+name: cms-ipxe
+version: 0.0.0
+description: Kubernetes resources for cms-ipxe
+home:  https://github.com/Cray-HPE/cms-ipxe
+sources:
+- https://github.com/Cray-HPE/cms-ipxe
+dependencies:
+- name: cray-service
+  version: ^7.0.0
+  repository: '@cray-algol60'
+annotations:
+  artifacthub.io/images: |
+    - name: cray-bss-ipxe
+      image: artifactory.algol60.net/csm-docker/stable/cray-bss-ipxe:0.0.0
+  artifacthub.io/license: MIT
