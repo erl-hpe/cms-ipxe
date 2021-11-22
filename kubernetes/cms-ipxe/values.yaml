@@ -20,8 +20,7 @@ cray-service:
     cray-ipxe:
       name: cray-ipxe
       image:
-        repository: cray/cray-bss-ipxe
-        pullPolicy: Always
+        repository: artifactory.algol60.net/csm-docker/stable/cray-bss-ipxe
       volumeMounts:
       - name: cray-tftp-data
         mountPath: /shared_tftp
@@ -65,7 +64,6 @@ cray-service:
 ipxe:
   name: cray-ipxe
   namespace: services
-  image_version: "latest"
 
   # Override with networks['node_management'].api_gw_service_dnsname
   api_gw: api-gw-service-nmn.local
