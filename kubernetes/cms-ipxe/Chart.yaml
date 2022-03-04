@@ -7,8 +7,8 @@ sources:
 - https://github.com/Cray-HPE/cms-ipxe
 dependencies:
 - name: cray-service
-  version: ^7.0.0
-  repository: '@cray-algol60'
+  version: "^7.0.0"
+  repository: "https://artifactory.algol60.net/artifactory/csm-helm-charts/"
 annotations:
   artifacthub.io/images: |
     - name: cray-bss-ipxe
