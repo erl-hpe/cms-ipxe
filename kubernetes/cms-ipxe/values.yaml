@@ -144,3 +144,6 @@ ipxe:
   # represents the pathological maximum to boot; in reality nothing should ever get
   # this high.
   bss_ceiling: 64
+
+  cray_ipxe_binary_name: ipxe.efi
+  cray_ipxe_debug_binary_name: debug-ipxe.efi
