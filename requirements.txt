@@ -1,4 +1,4 @@
---index-url https://arti.dev.cray.com:443/artifactory/api/pypi/pypi-remote/simple
+--index-url https://arti.hpc.amslabs.hpecorp.net:443/artifactory/api/pypi/pypi-remote/simple
 
 -c constraints.txt
 

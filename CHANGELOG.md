@@ -12,5 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Convert to gitflow/gitversion.
 - CASMCMS-7992 - Allow for changing ipxe binary names.
+- Update internal domain addresses
 
 ## [1.9.4] - (no date)
