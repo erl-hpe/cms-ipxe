@@ -516,6 +516,17 @@ def main():
                                                     ipxe_build_debug=ipxe_build_debug,
                                                     ipxe_build_debug_level=cray_ipxe_debug_level)
 
+            # The upgrade to cms-ipxe 1.10.0 changed the default name, potentially leaving an old file
+            # This file still contains a valid token and should be cleaned up if not in use
+            cruft_ipxe_debug_binary = os.path.join(TFTP_MOUNT_DIR, 'debug.efi')
+            if ipxe_debug_binary != cruft_ipxe_debug_binary and new_ipxe_debug_binary != cruft_ipxe_debug_binary:
+                if os.path.exists(cruft_ipxe_debug_binary):
+                    try:
+                        LOGGER.info(f'Removing old ipxe debug binary {cruft_ipxe_debug_binary}')
+                        os.remove(cruft_ipxe_debug_binary)
+                    except IOError:
+                        LOGGER.warning(f'Could not remove old ipxe debug binary {cruft_ipxe_debug_binary}')
+
             if not ipxe_debug_binary == new_ipxe_debug_binary:
                 if ipxe_debug_binary and os.path.exists(ipxe_debug_binary):
                     try:
