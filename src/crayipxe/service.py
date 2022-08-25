@@ -284,7 +284,7 @@ def token_expiring_soon(bearer_token, min_remaining_valid_time):
         return True
 
     # Just decode the token to extract the value.  THe token has already been
-    # obtianed from Keycloak here and verification gets handled
+    # obtained from Keycloak here and verification gets handled
     # by the API GW when the token is checked.
     tokenMap = None
     try:
@@ -458,7 +458,7 @@ def main():
             bearer_token_changed = True
             bearer_token = bearer_token_new
 
-            # Touch the relevent source to force a recompile.
+            # Touch the relevant source to force a recompile.
             os.utime('/ipxe/net/tcp/httpcore.c', None)
 
         # ipxe script setting
@@ -472,7 +472,7 @@ def main():
 
         if any([settings_changed, ca_public_key_changed, bss_script_changed,
                 bearer_token_changed]):
-            # Create a file to indicate the build is in progress. A Kuberenetes
+            # Create a file to indicate the build is in progress. A Kubernetes
             # livenessProbe can check on this file to see if it has stayed around
             # longer than expected, which would indicate a build failure.
             ipxe_timestamp = ipxeTimestamp(IPXE_PATH, os.getenv('IPXE_BUILD_TIME_LIMIT', 40))
@@ -504,7 +504,7 @@ def main():
             shell_script = shell_script_new
         if any([settings_changed, ca_public_key_changed, shell_script_changed,
                 bearer_token_changed]):
-            # Create a file to indicate the build is in progress. A Kuberenetes
+            # Create a file to indicate the build is in progress. A Kubernetes
             # livenessProbe can check on this file to see if it has stayed around
             # longer than expected, which would indicate a build failure.
             debug_ipxe_timestamp = ipxeTimestamp(DEBUG_IPXE_PATH,
