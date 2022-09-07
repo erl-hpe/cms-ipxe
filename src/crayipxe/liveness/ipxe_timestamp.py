@@ -138,7 +138,7 @@ class ipxeTimestamp(object):
                 data = json.load(timestamp_file)
                 return datetime.datetime.fromtimestamp(float(data['timestamp']))
         except FileNotFoundError:
-            LOGGER.warning("Timestamp never intialized to '%s'" % (self.path))
+            LOGGER.warning("Timestamp never initialized to '%s'" % (self.path))
             return datetime.datetime.fromtimestamp(0)
 
     def delete(self):
