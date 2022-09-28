@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Spelling corrections.
+- Enabled building of unstable artifacts
+- Updated header of update_versions.conf to reflect new tool options
 
 ### Fixed
 - Update Chart with correct image and chart version strings during builds.

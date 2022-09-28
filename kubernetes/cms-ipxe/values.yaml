@@ -43,7 +43,7 @@ cray-service:
     cray-ipxe:
       name: cray-ipxe
       image:
-        repository: artifactory.algol60.net/csm-docker/stable/cray-bss-ipxe
+        repository: artifactory.algol60.net/csm-docker/S-T-A-B-L-E/cray-bss-ipxe
       volumeMounts:
       - name: cray-tftp-data
         mountPath: /shared_tftp
