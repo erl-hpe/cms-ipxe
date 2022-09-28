@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Spelling corrections.
 
+### Fixed
+- Update Chart with correct image and chart version strings during builds.
+
 ## [1.11.0] - 20222-08-10
 
 ### Fixed
