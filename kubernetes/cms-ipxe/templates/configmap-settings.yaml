@@ -36,3 +36,5 @@ data:
     cray_ipxe_token_host: {{ .Values.ipxe.api_gw }}
     cray_ipxe_binary_name: {{ .Values.ipxe.cray_ipxe_binary_name }}
     cray_ipxe_debug_binary_name: {{ .Values.ipxe.cray_ipxe_debug_binary_name }}
+    cray_ipxe_build_arch: {{  .Values.ipxe.cray_ipxe_build_arch }}
+    cray_ipxe_build_kind: {{  .Values.ipxe.cray_ipxe_build_kind }}
